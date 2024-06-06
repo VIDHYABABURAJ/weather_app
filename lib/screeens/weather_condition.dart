@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:intl/intl.dart';
 import 'package:weather_app/controller/weather_controller.dart';
+import 'package:weather_app/model/current_weather_data.dart';
 import 'package:weather_app/model/weather_model.dart';
 import 'package:weather_app/screeens/location_screen.dart';
 
@@ -20,7 +22,10 @@ class _WeatherConditionState extends State<WeatherCondition> {
   final weathercontroller = WeatherController();
   String? _currentAddress;
   Position? _currentPosition;
+  CurrentWeatherModel ? _climate ;
   bool loading = false;
+
+
 
   Future<void> _getCurrentPosition() async {
     try {
@@ -28,24 +33,63 @@ class _WeatherConditionState extends State<WeatherCondition> {
         loading = true;
       });
       final hasPermission = await handleLocationPermission(context);
+      print(hasPermission);
       if (!hasPermission) {
+
         setState(() {
           loading = false;
         });
         return;
-      }
-      ;
+      };
 
       Position position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high);
+      print('qwerty');
 
       _currentPosition = position;
-
+       _climate =  await weathercontroller.getData(latitude: position.latitude.toString(), longitude: position.longitude.toString());
+       print('climate : $_climate');
       setState(() {
         loading = false;
       });
-    } catch (e) {}
+    } catch (e) {
+      print('sdsd');
+      print(e);
+
+    }
   }
+
+  String dateFormat(){
+    final datestamp = _climate!.dt;
+    print("date : $datestamp");
+    DateTime date =  DateTime.fromMillisecondsSinceEpoch(datestamp! * 1000);
+    print(date);
+    String formattedDate = DateFormat('MMM d').format(date);
+    print(formattedDate);
+    return formattedDate;
+  }
+
+  double kelvintoTemp(){
+    final kelvin = _climate!.main!.temp;
+    final keltoTemp = kelvin! - 273.15;
+
+    return keltoTemp;
+  }
+  double maxTemp(){
+    final max = _climate!.main!.tempMax;
+    final max_Temp = max! - 273.15;
+
+    return max_Temp;
+  }
+  double minTemp(){
+    final min = _climate!.main!.tempMin;
+    final min_Temp = min! - 273.15;
+
+    return min_Temp;
+  }
+
+
+
 
   @override
   void initState() {
@@ -57,7 +101,7 @@ class _WeatherConditionState extends State<WeatherCondition> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
+      body: loading ? Center(child: CircularProgressIndicator()):  Container(
         height: double.infinity,
         width: double.infinity,
         decoration: BoxDecoration(
@@ -75,32 +119,43 @@ class _WeatherConditionState extends State<WeatherCondition> {
               height: 180,
             ),
             Text(
-              _currentPosition.toString(),
+           //  " oo",
+              "${_climate != null ? _climate!.name : '0'}",
               style: TextStyle(
                   color: Colors.white,
                   fontSize: 20,
                   fontWeight: FontWeight.bold),
             ),
             Text(
-              "Precipitation",
+              //'kkk',
+              "${kelvintoTemp().toStringAsFixed(0)}°",
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 50,
+                  fontWeight: FontWeight.bold),
+            ),
+            Text(
+              //'jj',
+              "${_climate!.weather![0].description}",
               style: TextStyle(color: Colors.white, fontSize: 25),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  "Max: 24°",
+                 // 'oo',
+                  "Max: ${maxTemp().toStringAsFixed(0)}°",
                   style: TextStyle(color: Colors.white, fontSize: 25),
                 ),
                 SizedBox(
                   width: 15,
                 ),
                 Text(
-                  "Min: 18°",
+                 // 'iii',
+                  "Min: ${minTemp().toStringAsFixed(0)}°",
                   style: TextStyle(color: Colors.white, fontSize: 25),
                 ),
-              ],
-            ),
+              ],),
             Image(image: AssetImage("asset/images/House.png")),
             Container(
               height: 250,
@@ -124,12 +179,13 @@ class _WeatherConditionState extends State<WeatherCondition> {
                       ),
                       Padding(
                         padding: const EdgeInsets.only(top: 20, left: 150),
-                        child: Text("July,21",
+                        child: Text(
+                            //'pp',
+                            "${dateFormat()}",
                             style:
                                 TextStyle(color: Colors.white, fontSize: 25)),
                       )
-                    ],
-                  ),
+                    ],),
                   Divider(),
                   Row(
                     children: [
@@ -153,10 +209,8 @@ class _WeatherConditionState extends State<WeatherCondition> {
                         temp: "18°C",
                         time: "18.00",
                       ),
-                    ],
-                  )
-                ],
-              ),
+                    ],)
+                ],),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -166,7 +220,16 @@ class _WeatherConditionState extends State<WeatherCondition> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => LocationScreen(),
+                          builder: (context) => LocationScreen(
+                            weather: _climate!.weather![0].description.toString(),
+                            min: minTemp().toStringAsFixed(0),
+                            max: maxTemp().toStringAsFixed(0),
+
+
+
+
+
+                          ),
                         ));
                   },
                   icon: Icon(
@@ -193,10 +256,8 @@ class _WeatherConditionState extends State<WeatherCondition> {
                   ),
                   padding: EdgeInsets.only(top: 30),
                 ),
-              ],
-            )
-          ],
-        ),
+              ],)
+          ],),
       ),
     );
   }

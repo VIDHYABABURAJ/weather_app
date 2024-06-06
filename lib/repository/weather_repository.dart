@@ -4,24 +4,27 @@ import 'package:http/http.dart' as http;
 import 'package:weather_app/model/weather_model.dart';
 import 'package:weather_app/utils/constance.dart';
 
+import '../model/current_weather_data.dart';
+
 class weatherRepo{
 
-  Future<dynamic> getWeatherdata({required String lat , required String lon }) async{
-    http.Response res = await http.get(Uri.parse('https://api.openweathermap.org/data/2.5/weather?lat=10.532784778090969&lon=76.22768573455708&appid=8a42daacec6f47deafa41f28c51931ad'));
+  Future<CurrentWeatherModel> getWeatherdata({required String lat , required String lon }) async{
 
-    if(res == 200){
-      var data = jsonDecode(res.body);
-      print(data);
+    http.Response res = await http.get(Uri.parse('https://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lon&appid=8a42daacec6f47deafa41f28c51931ad'));
 
-      List<WeatherModel> weatherdata = data['List'].map<WeatherModel>((e) => WeatherModel.fromJson(e)).toList();
+      if(res.statusCode == 200) {
+        var data = jsonDecode(res.body);
+        print(data);
 
-
-      return weatherdata;
+        CurrentWeatherModel weatherdata = CurrentWeatherModel.fromJson(data);
 
 
+        return weatherdata;
+      }else{
 
+        throw res;
+      }
 
-    }
   }
   
 }
