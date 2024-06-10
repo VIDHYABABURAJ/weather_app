@@ -27,3 +27,18 @@ Future<bool> handleLocationPermission(BuildContext context) async {
   }
   return true;
 }
+
+
+String getIcon({required String weatherIcon}){
+
+  switch(weatherIcon){
+
+    case 'Clouds':
+      return 'asset/images/cloud.png';
+    default:
+      return 'asset/images/Moon cloud mid rain.png';
+
+
+  }
+
+}

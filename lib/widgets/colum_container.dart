@@ -13,15 +13,16 @@ class ColumnContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 100,
+
       child: Column(children: [
         Padding(
           padding: const EdgeInsets.only(left: 10),
           child: Text(temp, style:
-            TextStyle(color: Colors.white, fontSize: 25),
+            TextStyle(color: Colors.white, fontSize: 20),
           ),
         ),
         Image(
-            image: AssetImage(img)),
+            image: AssetImage(img),fit: BoxFit.fill,height: 90,),
         Padding(
           padding: const EdgeInsets.only( left: 10),
           child: Text(time, style: TextStyle(
@@ -33,34 +34,3 @@ class ColumnContainer extends StatelessWidget {
   }
 }
 
-class WeatherContainer extends StatelessWidget {
-  String day;
-  String imgs;
-  String tem;
-  WeatherContainer({
-    super.key,required this.imgs,required this.tem,required this.day
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-
-      width: 100,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 20),
-          child: Text(tem, style:
-          TextStyle(color: Colors.white, fontSize: 20),
-          ),
-        ),
-        Image(
-            image: AssetImage(imgs),width: 50,height: 50,),
-        Text(day, style: TextStyle(
-            color: Colors.white, fontSize: 20),
-        ),
-      ]),
-    );
-  }
-}

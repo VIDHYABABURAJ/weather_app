@@ -1,9 +1,13 @@
+
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:weather_app/controller/weather_controller.dart';
 import 'package:weather_app/model/current_weather_data.dart';
+import 'package:weather_app/model/hourley_forcasting_model.dart';
 import 'package:weather_app/model/weather_model.dart';
 import 'package:weather_app/screeens/location_screen.dart';
 
@@ -23,6 +27,7 @@ class _WeatherConditionState extends State<WeatherCondition> {
   String? _currentAddress;
   Position? _currentPosition;
   CurrentWeatherModel ? _climate ;
+ List<HourlyForecastModel> ? _forecast;
   bool loading = false;
 
 
@@ -46,9 +51,14 @@ class _WeatherConditionState extends State<WeatherCondition> {
           desiredAccuracy: LocationAccuracy.high);
       print('qwerty');
 
+      print(position.longitude);
+
       _currentPosition = position;
        _climate =  await weathercontroller.getData(latitude: position.latitude.toString(), longitude: position.longitude.toString());
        print('climate : $_climate');
+
+       _forecast = await weathercontroller.getHourlydata(latitude: position.latitude.toString(), longitude: position.longitude.toString());
+       print('forecast : $_forecast');
       setState(() {
         loading = false;
       });
@@ -59,44 +69,60 @@ class _WeatherConditionState extends State<WeatherCondition> {
     }
   }
 
-  String dateFormat(){
-    final datestamp = _climate!.dt;
-    print("date : $datestamp");
-    DateTime date =  DateTime.fromMillisecondsSinceEpoch(datestamp! * 1000);
-    print(date);
-    String formattedDate = DateFormat('MMM d').format(date);
-    print(formattedDate);
+  String dateFormat({required int wthrdate,required String format}){
+    
+    
+    DateTime date =  DateTime.fromMillisecondsSinceEpoch(wthrdate * 1000);
+   
+    String formattedDate = DateFormat(format).format(DateTime.now());
+   
     return formattedDate;
   }
+ 
 
-  double kelvintoTemp(){
-    final kelvin = _climate!.main!.temp;
-    final keltoTemp = kelvin! - 273.15;
 
+  double kelvintoTemp({required final temp}){
+   // final kelvin = _climate!.main!.temp;
+    final keltoTemp = temp - 273.15;
     return keltoTemp;
   }
-  double maxTemp(){
-    final max = _climate!.main!.tempMax;
-    final max_Temp = max! - 273.15;
 
-    return max_Temp;
-  }
-  double minTemp(){
-    final min = _climate!.main!.tempMin;
-    final min_Temp = min! - 273.15;
-
-    return min_Temp;
-  }
-
-
-
-
+  // double maxTemp(){
+  //   final max = _climate!.main!.tempMax;
+  //   final max_Temp = max! - 273.15;
+  //
+  //   return max_Temp;
+  // }
+  // double minTemp(){
+  //   final min = _climate!.main!.tempMin;
+  //   final min_Temp = min! - 273.15;
+  //
+  //   return min_Temp;
+  // }
+  //
+ 
   @override
   void initState() {
     _getCurrentPosition();
     // TODO: implement initState
     super.initState();
   }
+
+  List<Widget> getHourlyWidgetlist(){
+    
+
+    List<Widget> widgetlist = _forecast!.map((e) =>SizedBox(
+      width: 150,
+      child: ColumnContainer(
+        img:getIcon(weatherIcon: e.weather![0].main!),
+        temp: "${kelvintoTemp(temp: e.main!.temp).toStringAsFixed(0)}°C",
+        time: "${dateFormat(format: 'h:mm a',wthrdate: e.dt)}",
+      ),
+    ), ).toList();
+    
+    return widgetlist;
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -119,7 +145,6 @@ class _WeatherConditionState extends State<WeatherCondition> {
               height: 180,
             ),
             Text(
-           //  " oo",
               "${_climate != null ? _climate!.name : '0'}",
               style: TextStyle(
                   color: Colors.white,
@@ -127,15 +152,13 @@ class _WeatherConditionState extends State<WeatherCondition> {
                   fontWeight: FontWeight.bold),
             ),
             Text(
-              //'kkk',
-              "${kelvintoTemp().toStringAsFixed(0)}°",
+              "${kelvintoTemp(temp:_climate!.main!.temp).toStringAsFixed(0)}°",
               style: TextStyle(
                   color: Colors.white,
                   fontSize: 50,
                   fontWeight: FontWeight.bold),
             ),
             Text(
-              //'jj',
               "${_climate!.weather![0].description}",
               style: TextStyle(color: Colors.white, fontSize: 25),
             ),
@@ -143,17 +166,15 @@ class _WeatherConditionState extends State<WeatherCondition> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                 // 'oo',
-                  "Max: ${maxTemp().toStringAsFixed(0)}°",
-                  style: TextStyle(color: Colors.white, fontSize: 25),
+                  "Max: ${kelvintoTemp(temp: _climate!.main!.tempMax).toStringAsFixed(0)}°",
+                  style: TextStyle(color: Colors.white, fontSize: 20),
                 ),
                 SizedBox(
                   width: 15,
                 ),
                 Text(
-                 // 'iii',
-                  "Min: ${minTemp().toStringAsFixed(0)}°",
-                  style: TextStyle(color: Colors.white, fontSize: 25),
+                  "Min: ${kelvintoTemp(temp: _climate!.main!.tempMin).toStringAsFixed(0)}°",
+                  style: TextStyle(color: Colors.white, fontSize: 20),
                 ),
               ],),
             Image(image: AssetImage("asset/images/House.png")),
@@ -174,42 +195,24 @@ class _WeatherConditionState extends State<WeatherCondition> {
                         padding: const EdgeInsets.only(top: 20, left: 50),
                         child: Text(
                           "Today",
-                          style: TextStyle(color: Colors.white, fontSize: 25),
+                          style: TextStyle(color: Colors.white, fontSize: 20),
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(top: 20, left: 150),
+                        padding: const EdgeInsets.only(top: 20, left: 200),
                         child: Text(
-                            //'pp',
-                            "${dateFormat()}",
+                            "${dateFormat(wthrdate:_climate!.dt!,format: 'MMM d')}",
                             style:
-                                TextStyle(color: Colors.white, fontSize: 25)),
+                                TextStyle(color: Colors.white, fontSize: 20)),
                       )
                     ],),
                   Divider(),
-                  Row(
-                    children: [
-                      ColumnContainer(
-                        img: "asset/images/Weather _))10 18.png",
-                        temp: "19°C",
-                        time: "15.00",
-                      ),
-                      ColumnContainer(
-                        img: "asset/images/Moon cloud mid rain.png",
-                        temp: "18°C",
-                        time: "16.00",
-                      ),
-                      ColumnContainer(
-                        img: "asset/images/Moon cloud mid rain.png",
-                        temp: "18°C",
-                        time: "17.00",
-                      ),
-                      ColumnContainer(
-                        img: "asset/images/Moon cloud mid rain.png",
-                        temp: "18°C",
-                        time: "18.00",
-                      ),
-                    ],)
+                  SizedBox(
+                    height: 150,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      children:  getHourlyWidgetlist()),
+                  )
                 ],),
             ),
             Row(
@@ -222,11 +225,10 @@ class _WeatherConditionState extends State<WeatherCondition> {
                         MaterialPageRoute(
                           builder: (context) => LocationScreen(
                             weather: _climate!.weather![0].description.toString(),
-                            min: minTemp().toStringAsFixed(0),
-                            max: maxTemp().toStringAsFixed(0),
-
-
-
+                            min: kelvintoTemp(temp:  _climate!.main!.tempMin).toStringAsFixed(0),
+                            max:kelvintoTemp(temp: _climate!.main!.tempMax).toStringAsFixed(0),
+                            sunset:_climate!.sys!.sunset,
+                            sunrise: _climate!.sys!.sunrise,
 
 
                           ),

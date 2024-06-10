@@ -1,3 +1,4 @@
+
 class CurrentWeatherModel {
   Coord? coord;
   List<Weather>? weather;

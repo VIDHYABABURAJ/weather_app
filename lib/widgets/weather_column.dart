@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:weather_app/widgets/colum_container.dart';
+import 'package:weather_app/widgets/weathercontainer.dart';
 
 class WeatherDays extends StatefulWidget {
-  List<String> day =[];
+   List<String> day ;
+
   WeatherDays({super.key, required this.day});
 
   @override
@@ -24,7 +26,8 @@ class _WeatherDaysState extends State<WeatherDays> {
                   ]),
             borderRadius: BorderRadius.circular(30)
           ),
-          child:WeatherContainer(day:"${widget.day[0]}",imgs: 'asset/images/Weather _))10 18.png',tem: '19°C',)
+          child:WeatherContainer(day:widget.day,imgs: 'asset/images/Weather _))10 18.png'
+            ,)
 
 
         );

@@ -5,26 +5,45 @@ import 'package:weather_app/model/weather_model.dart';
 import 'package:weather_app/utils/constance.dart';
 
 import '../model/current_weather_data.dart';
+import '../model/hourley_forcasting_model.dart';
 
-class weatherRepo{
+class weatherRepo {
+  Future<CurrentWeatherModel> getWeatherdata(
+      {required String lat, required String lon}) async {
+    http.Response res = await http.get(Uri.parse(
+        'https://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lon&appid=8a42daacec6f47deafa41f28c51931ad'));
 
-  Future<CurrentWeatherModel> getWeatherdata({required String lat , required String lon }) async{
+    if (res.statusCode == 200) {
+      var data = jsonDecode(res.body);
+      print(data);
 
-    http.Response res = await http.get(Uri.parse('https://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lon&appid=8a42daacec6f47deafa41f28c51931ad'));
+      CurrentWeatherModel weatherdata = CurrentWeatherModel.fromJson(data);
 
-      if(res.statusCode == 200) {
-        var data = jsonDecode(res.body);
-        print(data);
+      print('dddddddddddd');
 
-        CurrentWeatherModel weatherdata = CurrentWeatherModel.fromJson(data);
-
-
-        return weatherdata;
-      }else{
-
-        throw res;
-      }
-
+      return weatherdata;
+    } else {
+      throw res;
+    }
   }
-  
+
+  Future<List<HourlyForecastModel>> getForecastdata({required String lat,required String lon}) async{
+
+    http.Response res = await http.get(Uri.parse('https://api.openweathermap.org/data/2.5/forecast?lat=$lat&lon=$lon&appid=8a42daacec6f47deafa41f28c51931ad'));
+
+    if(res.statusCode == 200){
+      var data =jsonDecode(res.body);
+      print('forcast data');
+      print(data);
+
+       List<HourlyForecastModel> forecastdatalist = data['list'].map<HourlyForecastModel>((e)=> HourlyForecastModel.fromJson(e)).toList() ;
+       print("converted data");
+       print(forecastdatalist);
+
+
+      return forecastdatalist;
+    }else{
+      throw res;
+    }
+  }
 }
