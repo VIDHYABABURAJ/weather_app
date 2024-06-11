@@ -4,7 +4,9 @@ import 'dart:async';
 import 'package:weather_app/model/current_weather_data.dart';
 import 'package:weather_app/model/weather_model.dart';
 import 'package:weather_app/repository/weather_repository.dart';
+import 'package:weather_app/utils/constance.dart';
 
+import '../model/daily_weather_model.dart';
 import '../model/hourley_forcasting_model.dart';
 
 class WeatherController {
@@ -30,6 +32,20 @@ class WeatherController {
       print(e);
       rethrow;
     }
+
+  }
+
+  Future<DailyWeather> getDaily(
+      {required String latitude, required String longitude}) async{
+
+    try{
+      final dailyweathre = await weatherrepo.getDailydata(lat: lat, lon: lon);
+      return dailyweathre;
+    }catch(e){
+      print(e);
+      rethrow;
+    }
+
 
   }
 

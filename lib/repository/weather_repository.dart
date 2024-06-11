@@ -5,6 +5,7 @@ import 'package:weather_app/model/weather_model.dart';
 import 'package:weather_app/utils/constance.dart';
 
 import '../model/current_weather_data.dart';
+import '../model/daily_weather_model.dart';
 import '../model/hourley_forcasting_model.dart';
 
 class weatherRepo {
@@ -46,4 +47,25 @@ class weatherRepo {
       throw res;
     }
   }
+
+  Future<DailyWeather> getDailydata({required String lat, required String lon}) async{
+    http.Response res = await http.get(Uri.parse(
+        'http://api.weatherapi.com/v1/current.json?key=2b6d8785b848444eb9991631241006&q={lat=$lat&lon=$lon}&aqi=no'));
+    if (res.statusCode == 200) {
+      var data = jsonDecode(res.body);
+      print(data);
+
+      DailyWeather dailydata = DailyWeather.fromJson(data);
+
+      print('dailydata');
+
+      return dailydata;
+    } else {
+      throw res;
+    }
+
+
+
+  }
+
 }

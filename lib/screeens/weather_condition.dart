@@ -7,6 +7,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:weather_app/controller/weather_controller.dart';
 import 'package:weather_app/model/current_weather_data.dart';
+import 'package:weather_app/model/daily_weather_model.dart';
 import 'package:weather_app/model/hourley_forcasting_model.dart';
 import 'package:weather_app/model/weather_model.dart';
 import 'package:weather_app/screeens/location_screen.dart';
@@ -28,6 +29,7 @@ class _WeatherConditionState extends State<WeatherCondition> {
   Position? _currentPosition;
   CurrentWeatherModel ? _climate ;
  List<HourlyForecastModel> ? _forecast;
+ DailyWeather? _dailyData;
   bool loading = false;
 
 
@@ -59,6 +61,11 @@ class _WeatherConditionState extends State<WeatherCondition> {
 
        _forecast = await weathercontroller.getHourlydata(latitude: position.latitude.toString(), longitude: position.longitude.toString());
        print('forecast : $_forecast');
+
+       _dailyData= await weathercontroller.getDaily(latitude: position.latitude.toString(),longitude: position.longitude.toString());
+       print('dailtdata : $_dailyData');
+
+
       setState(() {
         loading = false;
       });
@@ -136,130 +143,132 @@ class _WeatherConditionState extends State<WeatherCondition> {
           Color.fromRGBO(157, 82, 172, 0.7),
           Color.fromRGBO(62, 45, 143, 1),
         ])),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Image(
-              image: AssetImage('asset/images/cloud.png'),
-              width: 180,
-              height: 180,
-            ),
-            Text(
-              "${_climate != null ? _climate!.name : '0'}",
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold),
-            ),
-            Text(
-              "${kelvintoTemp(temp:_climate!.main!.temp).toStringAsFixed(0)}°",
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 50,
-                  fontWeight: FontWeight.bold),
-            ),
-            Text(
-              "${_climate!.weather![0].description}",
-              style: TextStyle(color: Colors.white, fontSize: 25),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "Max: ${kelvintoTemp(temp: _climate!.main!.tempMax).toStringAsFixed(0)}°",
-                  style: TextStyle(color: Colors.white, fontSize: 20),
-                ),
-                SizedBox(
-                  width: 15,
-                ),
-                Text(
-                  "Min: ${kelvintoTemp(temp: _climate!.main!.tempMin).toStringAsFixed(0)}°",
-                  style: TextStyle(color: Colors.white, fontSize: 20),
-                ),
-              ],),
-            Image(image: AssetImage("asset/images/House.png")),
-            Container(
-              height: 250,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(30),
-                  gradient: LinearGradient(colors: [
-                    Color.fromRGBO(157, 82, 172, 0.7),
-                    Color.fromRGBO(62, 45, 143, 1),
-                  ])),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 20, left: 50),
-                        child: Text(
-                          "Today",
-                          style: TextStyle(color: Colors.white, fontSize: 20),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 20, left: 200),
-                        child: Text(
-                            "${dateFormat(wthrdate:_climate!.dt!,format: 'MMM d')}",
-                            style:
-                                TextStyle(color: Colors.white, fontSize: 20)),
-                      )
-                    ],),
-                  Divider(),
-                  SizedBox(
-                    height: 150,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      children:  getHourlyWidgetlist()),
-                  )
-                ],),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => LocationScreen(
-                            weather: _climate!.weather![0].description.toString(),
-                            min: kelvintoTemp(temp:  _climate!.main!.tempMin).toStringAsFixed(0),
-                            max:kelvintoTemp(temp: _climate!.main!.tempMax).toStringAsFixed(0),
-                            sunset:_climate!.sys!.sunset,
-                            sunrise: _climate!.sys!.sunrise,
-
-
-                          ),
-                        ));
-                  },
-                  icon: Icon(
-                    Icons.location_on_outlined,
-                    size: 30,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Image(
+                image: AssetImage('asset/images/cloud.png'),
+                width: 180,
+                height: 180,
+              ),
+              Text(
+                "${_climate != null ? _climate!.name : '0'}",
+                style: TextStyle(
                     color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold),
+              ),
+              Text(
+                "${kelvintoTemp(temp:_climate!.main!.temp).toStringAsFixed(0)}°C",
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 50,
+                    fontWeight: FontWeight.bold),
+              ),
+              Text(
+                "${_climate!.weather![0].description}",
+                style: TextStyle(color: Colors.white, fontSize: 25),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Max: ${kelvintoTemp(temp: _climate!.main!.tempMax).toStringAsFixed(0)}°C",
+                    style: TextStyle(color: Colors.white, fontSize: 20),
                   ),
-                  padding: EdgeInsets.only(right: 100, top: 30),
-                ),
-                IconButton(
-                    onPressed: () {},
+                  SizedBox(
+                    width: 15,
+                  ),
+                  Text(
+                    "Min: ${kelvintoTemp(temp: _climate!.main!.tempMin).toStringAsFixed(0)}°C",
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  ),
+                ],),
+              Image(image: AssetImage("asset/images/House.png")),
+              Container(
+                height: 250,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    gradient: LinearGradient(colors: [
+                      Color.fromRGBO(157, 82, 172, 0.7),
+                      Color.fromRGBO(62, 45, 143, 1),
+                    ])),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 20, left: 50),
+                          child: Text(
+                            "Today",
+                            style: TextStyle(color: Colors.white, fontSize: 20),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 20, left: 200),
+                          child: Text(
+                              "${dateFormat(wthrdate:_climate!.dt!,format: 'MMM d')}",
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 20)),
+                        )
+                      ],),
+                    Divider(),
+                    SizedBox(
+                      height: 150,
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        children:  getHourlyWidgetlist()),
+                    )
+                  ],),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => LocationScreen(
+                              weather: _climate!.weather![0].description.toString(),
+                              min: kelvintoTemp(temp:  _climate!.main!.tempMin).toStringAsFixed(0),
+                              max:kelvintoTemp(temp: _climate!.main!.tempMax).toStringAsFixed(0),
+                              sunset:_climate!.sys!.sunset,
+                              sunrise: _climate!.sys!.sunrise,
+                             temp: _dailyData!.current!.tempC,
+                              uv: _dailyData!.current!.uv,
+                            ),
+                          ));
+                    },
                     icon: Icon(
-                      Icons.add_circle_outline,
+                      Icons.location_on_outlined,
                       size: 30,
                       color: Colors.white,
                     ),
-                    padding: EdgeInsets.only(right: 100, top: 30)),
-                IconButton(
-                  onPressed: () {},
-                  icon: Icon(
-                    Icons.list,
-                    size: 30,
-                    color: Colors.white,
+                    padding: EdgeInsets.only(right: 100, top: 30),
                   ),
-                  padding: EdgeInsets.only(top: 30),
-                ),
-              ],)
-          ],),
+                  IconButton(
+                      onPressed: () {},
+                      icon: Icon(
+                        Icons.add_circle_outline,
+                        size: 30,
+                        color: Colors.white,
+                      ),
+                      padding: EdgeInsets.only(right: 100, top: 30)),
+                  IconButton(
+                    onPressed: () {},
+                    icon: Icon(
+                      Icons.list,
+                      size: 30,
+                      color: Colors.white,
+                    ),
+                    padding: EdgeInsets.only(top: 30),
+                  ),
+                ],)
+            ],),
+        ),
       ),
     );
   }
