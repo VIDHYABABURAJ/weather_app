@@ -10,17 +10,16 @@ import '../model/hourley_forcasting_model.dart';
 
 class weatherRepo {
   Future<CurrentWeatherModel> getWeatherdata(
-      {required String lat, required String lon}) async {
+      {required dynamic lat, required dynamic lon}) async {
     http.Response res = await http.get(Uri.parse(
         'https://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lon&appid=8a42daacec6f47deafa41f28c51931ad'));
 
     if (res.statusCode == 200) {
       var data = jsonDecode(res.body);
-      print(data);
+
 
       CurrentWeatherModel weatherdata = CurrentWeatherModel.fromJson(data);
 
-      print('dddddddddddd');
 
       return weatherdata;
     } else {
@@ -28,18 +27,15 @@ class weatherRepo {
     }
   }
 
-  Future<List<HourlyForecastModel>> getForecastdata({required String lat,required String lon}) async{
+  Future<List<HourlyForecastModel>> getForecastdata({required dynamic lat,required dynamic lon}) async{
 
     http.Response res = await http.get(Uri.parse('https://api.openweathermap.org/data/2.5/forecast?lat=$lat&lon=$lon&appid=8a42daacec6f47deafa41f28c51931ad'));
 
     if(res.statusCode == 200){
       var data =jsonDecode(res.body);
-      print('forcast data');
-      print(data);
 
        List<HourlyForecastModel> forecastdatalist = data['list'].map<HourlyForecastModel>((e)=> HourlyForecastModel.fromJson(e)).toList() ;
-       print("converted data");
-       print(forecastdatalist);
+
 
 
       return forecastdatalist;
@@ -48,14 +44,15 @@ class weatherRepo {
     }
   }
 
-  Future<DailyWeather> getDailydata({required String lat, required String lon}) async{
+  Future<DailyWeatherModel> getDailydata({required dynamic cityname}) async{
     http.Response res = await http.get(Uri.parse(
-        'http://api.weatherapi.com/v1/current.json?key=2b6d8785b848444eb9991631241006&q={lat=$lat&lon=$lon}&aqi=no'));
+        'http://api.weatherapi.com/v1/forecast.json?key=2b6d8785b848444eb9991631241006&q=london&days=7&aqi=no&alerts=no'));
     if (res.statusCode == 200) {
       var data = jsonDecode(res.body);
       print(data);
+      print('dailydata');
 
-      DailyWeather dailydata = DailyWeather.fromJson(data);
+      DailyWeatherModel dailydata = DailyWeatherModel.fromJson(data);
 
       print('dailydata');
 

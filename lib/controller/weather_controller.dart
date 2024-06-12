@@ -12,7 +12,7 @@ import '../model/hourley_forcasting_model.dart';
 class WeatherController {
   final weatherrepo = weatherRepo();
 
-  Future<CurrentWeatherModel> getData({required String latitude, required String longitude }) async{
+  Future<CurrentWeatherModel> getData({required dynamic latitude, required dynamic longitude }) async{
     try{
       final weathermodel = await weatherrepo.getWeatherdata(lat: latitude,lon: longitude);
       print(weathermodel.clouds);
@@ -23,10 +23,10 @@ class WeatherController {
     }
   }
 
-  Future<List<HourlyForecastModel>> getHourlydata({required String latitude, required String longitude}) async{
+  Future<List<HourlyForecastModel>> getHourlydata({required dynamic latitude, required dynamic longitude}) async{
     try{
       final forcastmodel = await weatherrepo.getForecastdata(lat: latitude, lon: longitude);
-     // print(forcastmodel.clouds);
+     // print('aaa');
       return forcastmodel;
     }catch(e){
       print(e);
@@ -35,11 +35,11 @@ class WeatherController {
 
   }
 
-  Future<DailyWeather> getDaily(
-      {required String latitude, required String longitude}) async{
+  Future<DailyWeatherModel> getDaily(
+      {required dynamic cityname}) async{
 
     try{
-      final dailyweathre = await weatherrepo.getDailydata(lat: lat, lon: lon);
+      final dailyweathre = await weatherrepo.getDailydata(cityname:cityname );
       return dailyweathre;
     }catch(e){
       print(e);

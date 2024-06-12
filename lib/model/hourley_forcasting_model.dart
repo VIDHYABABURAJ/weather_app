@@ -154,9 +154,9 @@ class Clouds {
 }
 
 class Wind {
-  double? speed;
-  int? deg;
-  double? gust;
+  dynamic speed;
+  dynamic deg;
+  dynamic gust;
 
   Wind({this.speed, this.deg, this.gust});
 
